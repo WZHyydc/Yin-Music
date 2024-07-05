@@ -1,0 +1,25 @@
+# Ignore node_modules directory
+music-client/node_modules/
+music-manage/node_modules/
+
+# Ignore macOS system files
+.DS_Store
+
+#忽略一些静态文件
+product/client/html/dist
+product/manage/html/dist
+product/minio/data
+product/redis/data
+music-client/dist
+music-manage/dist
+
+music-server/.idea
+music-server/logs
+music-server/target
+
+#忽略jar包
+product/*.jar
+
+#忽略资源文件
+data/
+
