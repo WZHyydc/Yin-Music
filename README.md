@@ -1,5 +1,3 @@
 # Yin-Music
-<<<<<<< HEAD
-Music website, personal learning only, original: https://github.com/Yin-Hongwei/music-website, fixed many problems.
-=======
->>>>>>> 1a6539c (第一次提交)
+
+# product模拟上线环境，其余均为源码
