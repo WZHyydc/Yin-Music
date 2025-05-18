@@ -5,6 +5,10 @@
       <img :src="HttpManager.attachImageUrl(item.pic)" />
     </el-carousel-item>
   </el-carousel>
+  <!--推荐入口-->
+  <el-card class="recommend-entry" @click="$router.push('/recommend')" shadow="hover">
+    <span>🎵 为你推荐 🎵</span>
+  </el-card>
   <!--热门歌单-->
   <play-list class="play-list-container" title="歌单" path="song-sheet-detail" :playList="songList"></play-list>
   <!--热门歌手-->
@@ -65,5 +69,21 @@ try {
 
 .el-slider__runway {
   background-color: $color-blue;
+}
+
+/*推荐入口*/
+.recommend-entry {
+  width: 90%;
+  margin: 20px auto;
+  text-align: center;
+  font-size: 20px;
+  cursor: pointer;
+  background: #f5f7fa;
+  color: #409eff;
+  transition: all 0.3s ease;
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  }
 }
 </style>

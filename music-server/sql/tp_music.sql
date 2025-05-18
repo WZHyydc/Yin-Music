@@ -22,7 +22,7 @@ use tp_music;
 --
 
 DROP TABLE IF EXISTS `admin`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;3
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `admin` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
@@ -334,14 +334,28 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2023-04-25 22:12:48
 
-# 创建触发器，当consumer删除数据（用户）时，删除comment相关的数据（根据用户user_id), 删除rank_list相关的数据（根据consumer_id)
+
+# 创建触发器，当consumer删除数据（用户）时，删除comment相关的数据（根据用户user_id), 删除rank_list相关的数据（根据consumer_id), 删usersupport相关的数据（根据user_id)
 DELIMITER $$
 DROP TRIGGER IF EXISTS `delete_consumer`$$
 CREATE TRIGGER `delete_consumer` AFTER DELETE ON `consumer` FOR EACH ROW
 BEGIN
     DELETE FROM comment WHERE user_id = OLD.id;
+END$$
+
+DELIMITER $$
+DROP TRIGGER IF EXISTS `delete_rank_list`$$
+CREATE TRIGGER `delete_rank_list` AFTER DELETE ON `consumer` FOR EACH ROW
+BEGIN
+    DELETE FROM rank_list WHERE consumer_id = OLD.id;
+END$$
+
+DELIMITER $$
+DROP TRIGGER IF EXISTS `delete_user_support`$$
+CREATE TRIGGER `delete_user_support` AFTER DELETE ON `consumer` FOR EACH ROW
+BEGIN
+    DELETE FROM user_support WHERE user_id = OLD.id;
 END$$
 
 
@@ -368,3 +382,69 @@ update song_list set pic = concat('/user01',pic);
 update banner set pic = concat('/user01',pic);
 
 
+DROP TABLE IF EXISTS `play_history`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `play_history` (
+  `id`         BIGINT       UNSIGNED NOT NULL AUTO_INCREMENT,
+  `user_id`    BIGINT       UNSIGNED NOT NULL COMMENT '用户 ID',
+  `song_id`    BIGINT       UNSIGNED NOT NULL COMMENT '歌曲 ID',
+  `play_time`  DATETIME               NOT NULL
+                                DEFAULT CURRENT_TIMESTAMP
+                                COMMENT '播放时间',
+  PRIMARY KEY (`id`),
+  INDEX `idx_user_playtime` (`user_id`, `play_time`)
+) ENGINE=InnoDB
+  DEFAULT CHARSET=utf8mb4
+  COMMENT='记录用户播放历史：user_id, song_id, play_time';
+
+
+CREATE TABLE `user_recommendations` (
+  `user_id`          BIGINT       NOT NULL COMMENT '用户 ID, 外键关联 users 表', 
+  `recommend_time`   DATETIME     NOT NULL 
+                           DEFAULT CURRENT_TIMESTAMP 
+                           COMMENT '推荐生成时间', 
+  `model_version`    VARCHAR(64)  NOT NULL COMMENT '推荐模型版本或名称', 
+  `song_ids`         JSON         NOT NULL COMMENT 'Top-10 推荐歌曲 ID 列表, JSON 数组',
+  PRIMARY KEY (`user_id`, `recommend_time`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
+  COMMENT='用户推荐结果表——用 JSON 存储 10 首歌曲 ID';
+
+/*
+    如果视图存在则删除
+    创建视图用来计算用户对于歌曲的加权评分
+ */
+DROP VIEW IF EXISTS user_song_ratings;
+CREATE VIEW user_song_ratings AS
+SELECT
+    r.consumer_id,                      -- 用户ID
+    ls.song_id,                          -- 歌曲ID
+    SUM(r.score / song_count) AS weighted_score  -- 加权评分
+FROM
+    rank_list r
+JOIN
+    list_song ls ON r.song_list_id = ls.song_list_id  -- 关联rank_list和list_song表
+JOIN
+    (
+        SELECT song_list_id, COUNT(*) AS song_count  -- 统计每个歌单中的歌曲数量
+        FROM list_song
+        GROUP BY song_list_id
+    ) song_list_count ON ls.song_list_id = song_list_count.song_list_id
+GROUP BY
+    r.consumer_id, ls.song_id;
+
+
+DROP TABLE IF EXISTS `user_features`;
+CREATE TABLE `user_features` (
+    `user_id`           BIGINT       NOT NULL COMMENT '用户 ID',
+    `recent_plays`      JSON         NOT NULL COMMENT '最近播放的100首歌曲ID列表',
+    `favorite_songs`    JSON         NOT NULL COMMENT '用户收藏的歌曲ID列表',
+    `song_ratings`      JSON         NOT NULL COMMENT '用户对歌曲的加权评分',
+    `update_time`       DATETIME     NOT NULL 
+                              DEFAULT CURRENT_TIMESTAMP 
+                              ON UPDATE CURRENT_TIMESTAMP
+                              COMMENT '特征更新时间',
+    PRIMARY KEY (`user_id`)
+) ENGINE=InnoDB 
+  DEFAULT CHARSET=utf8mb4
+  COMMENT='用户特征表 - 存储用户的播放历史、收藏和评分等特征';

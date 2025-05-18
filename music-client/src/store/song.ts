@@ -23,6 +23,7 @@ export default {
     currentPlayList: [], // 当前播放列表
     songDetails: null, // 单个歌单信息
     currentPlayIndex: -1, // 当前歌曲在歌曲列表的位置
+
   },
   getters: {
     songId: (state) => state.songId,
@@ -43,6 +44,8 @@ export default {
     currentPlayList: (state) => state.currentPlayList,
     songDetails: (state) => state.songDetails,
     currentPlayIndex: (state) => state.currentPlayIndex,
+    
+
   },
   mutations: {
     setSongId: (state, songId) => {

@@ -72,6 +72,7 @@ import {HttpManager} from "@/api";
 import {formatSeconds} from "@/utils";
 import {Icon, RouterName} from "@/enums";
 import { tr } from "element-plus/lib/locale";
+import { TurnOff } from "@element-plus/icons-vue/dist/types";
 
 export default defineComponent({
   components: {
@@ -87,6 +88,9 @@ export default defineComponent({
     const userIdVO = computed(() => store.getters.userId);
     const songIdVO = computed(() => store.getters.songId);
     const token = computed(() => store.getters.token);
+
+    const isneedCommitPlayHistory = computed(() => store.getters.isneedCommitPlayHistory);
+
 
 
     watch(songIdVO, () => {
@@ -124,6 +128,20 @@ export default defineComponent({
       if (result.data == true || result.data == false) isCollection.value = result.data;
     }
 
+    async function addPlayHistory() {
+      const userId = userIdVO.value;
+      const songId = songIdVO.value;
+        if (userId && songId) {
+          // await HttpManager.addPlayHistory({ userId, songId });
+          try {
+          await HttpManager.addPlayHistory({ userId, songId });
+          console.log("播放记录提交成功"); // 添加日志
+        } catch (error) {
+          console.error("播放记录提交失败:", error);
+        }
+      }
+   }
+
     onMounted(() => {
       if (songIdVO.value) initCollection();
     });
@@ -136,6 +154,8 @@ export default defineComponent({
       attachImageUrl: HttpManager.attachImageUrl,
       changeCollection,
       downloadMusic,
+      isneedCommitPlayHistory,
+      addPlayHistory,
     };
   },
   data() {
@@ -179,6 +199,8 @@ export default defineComponent({
       "currentPlayIndex", // 当前歌曲在歌曲列表的位置
       "showAside", // 是否显示侧边栏
       "autoNext", // 用于触发自动播放下一首
+      "isneedCommitPlayHistory", // 是否需要提交播放记录
+
     ]),
   },
   
@@ -207,7 +229,7 @@ export default defineComponent({
       this.$store.commit("setShowAside", !this.showAside);
     },
     // 控制音乐播放 / 暂停
-    togglePlay() {
+    async togglePlay() {
       if(!this.$store.getters.songUrl){
         this.$message({
           message: "请先选择播放歌曲",
@@ -215,11 +237,34 @@ export default defineComponent({
         });
         return;
       }
-      this.$store.commit("setIsPlay", this.isPlay ? false : true);
-    },
+
+      // 新增：播放记录逻辑, 同时通过isneedCommitPlayHistory来判断是否需要提交播放记录，避免重复提交
+      // 功能已经实现，但是存在bug，说明一下bug触发条件：
+      // 凡是没有调用toplay的，都会触发bug，比如第一次
+      // 播放歌曲，没有调用toplay，所以isneedCommitPlayHistory为flase，没有提交播放记录，导致bug
+      // 通过下一首上一首按钮就会调用toplay，所以isneedCommitPlayHistory为true，就会在第一次提交播放记录
+      // 问题来源：YinAudio.vue, YinContainer.vue, YinPlayBar.vue
+      if (this.$store.getters.isneedCommitPlayHistory) {
+      try {
+        if(this.$store.getters.userId && this.$store.getters.songId){
+        await HttpManager.addPlayHistory({
+          userId: this.$store.getters.userId,
+          songId: this.$store.getters.songId
+        });}
+        this.$store.commit("setIsneedCommitPlayHistory", false);
+       
+      } catch (error) {
+        console.error("提交播放记录失败:", error);
+      }
+    }
+
+    this.$store.commit("setIsPlay", this.isPlay ? false : true);
+  },
+
     changeTime() {
       this.$store.commit("setChangeTime", this.duration * (this.nowTime * 0.01));
     },
+
     changePlayState() {
       this.playStateIndex = this.playStateIndex >= this.playStateList.length - 1 ? 0 : ++this.playStateIndex;
       this.playState = this.playStateList[this.playStateIndex];
@@ -261,6 +306,9 @@ export default defineComponent({
     // 选中播放
     toPlay(url) {
       if (url && url !== this.songUrl) {
+
+        this.$store.commit("setIsneedCommitPlayHistory", true);
+
         const song = this.currentPlayList[this.currentPlayIndex];
         this.playMusic({
           id: song.id,

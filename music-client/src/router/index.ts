@@ -99,6 +99,11 @@ const routes: Array<RouteRecordRaw> = [
           }
         ]
       },
+      {
+        path: "/recommend",
+        name: "recommend",
+        component: () => import("@/views/Recommend.vue"),
+      },
     ],
   },
 ];

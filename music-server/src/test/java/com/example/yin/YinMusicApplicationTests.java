@@ -1,21 +1,30 @@
 package com.example.yin;
 
 import com.example.yin.service.impl.ConsumerServiceImpl;
+import io.minio.MinioClient;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.util.Properties;
+
+
+
+
 @RunWith(SpringRunner.class)
 @SpringBootTest
 public class YinMusicApplicationTests {
 
-    @Autowired
+//    @Autowired
     // private SongServiceImpl songService;
     // private SingerServiceImpl singerService;
     // private SongListServiceImpl songListService;
-    private ConsumerServiceImpl consumerService;
+//    private ConsumerServiceImpl consumerService;
     // private RankListServiceImpl rankListService;
 
     // @Test
@@ -86,9 +95,40 @@ public class YinMusicApplicationTests {
 
     // 用户
 
+//    @Test
+//    public void consumerTest2()
+//    {
+//    System.out.println(consumerService.allUser());
+//    }
+
+
+    @Autowired
+    private ConsumerServiceImpl consumerService;
+
+    private MinioClient minioClient;
+    private String bucketName;
+    private Properties properties;
+
     @Test
-    public void consumerTest2()
-    {
-    System.out.println(consumerService.allUser());
+    public void testMinioConnection() throws IOException {
+        // 加载配置文件
+        Properties properties = new Properties();
+        FileInputStream fis = new FileInputStream("src/main/resources/application-prod.properties");
+        properties.load(fis);
+
+        // 初始化 MinioClient
+        String minioEndpoint = properties.getProperty("minio.endpoint");
+        String minioAccessKey = properties.getProperty("minio.access-key");
+        String minioSecretKey = properties.getProperty("minio.secret-key");
+        String minioBucketName = properties.getProperty("minio.bucket-name");
+        bucketName = minioBucketName;
+        minioClient = MinioClient.builder()
+                .endpoint(minioEndpoint)
+                .credentials(minioAccessKey, minioSecretKey)
+                .build();
+
+        // 验证 MinioClient 是否成功创建
+        assert minioClient != null : "MinioClient should not be null";
     }
+
 }

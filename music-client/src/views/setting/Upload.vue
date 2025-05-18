@@ -16,6 +16,7 @@ import { useStore } from "vuex";
 import { UploadFilled } from "@element-plus/icons-vue";
 import { HttpManager } from "@/api";
 
+
 export default defineComponent({
   components: {
     UploadFilled,
@@ -26,6 +27,7 @@ export default defineComponent({
 
     const uploadTypes = ref(["jpg", "jpeg", "png", "gif"]);
     const userId = computed(() => store.getters.userId);
+    
 
     function uploadUrl() {
       return HttpManager.uploadUrl(userId.value);

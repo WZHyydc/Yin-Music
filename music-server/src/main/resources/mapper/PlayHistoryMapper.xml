@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.yin.mapper.PlayHistoryMapper">
+    <resultMap id="BaseResultMap" type="com.example.yin.model.domain.PlayHistory">
+        <result column="id" property="id" jdbcType="BIGINT" />
+        <result column="user_id" property="userId" jdbcType="BIGINT" />
+        <result column="song_id" property="songId" jdbcType="BIGINT" />
+        <result column="play_time" property="playTime" jdbcType="TIMESTAMP" />
+    </resultMap>
+    <sql id="Base_Column_List">
+        id, user_id, song_id, play_time
+    </sql>
+
+</mapper>

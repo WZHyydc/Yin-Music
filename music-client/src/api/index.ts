@@ -1,4 +1,5 @@
 import { getBaseURL, get, post, deletes } from "./request";
+import axios from "axios";
 
 const HttpManager = {
   // 获取图片信息
@@ -94,9 +95,14 @@ const HttpManager = {
   insertUserSupport:({commentId,userId}) => post(`userSupport/insert`, {commentId,userId}),
 
   //获取所有的海报
-  getBannerList: () => get("banner/getAllBanner")
+  getBannerList: () => get("banner/getAllBanner"),
+
+  //======================> 播放记录 API
+  //添加播放记录
+  addPlayHistory: (data) => post(`playhistory/add`, data),
+
+  // 获取指定用户ID的推荐播放列表， 返回json形式的id
+  getRecommendPlayList: (userId) => get(`song/recommend?userId=${userId}`),
 };
-
-
 
 export { HttpManager };

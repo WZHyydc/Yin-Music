@@ -4,12 +4,14 @@ export default {
     showAside: false, // 是否显示侧边栏
     searchWord: "", // 搜索关键词
     activeNavName: "", // 导航栏名称
+    isneedCommitPlayHistory: true, //是否需要提交播放记录
   },
   getters: {
     token: (state) => state.token,
     activeNavName: (state) => state.activeNavName,
     showAside: (state) => state.showAside,
     searchWord: (state) => state.searchWord,
+    isneedCommitPlayHistory: (state) => state.isneedCommitPlayHistory,
   },
   mutations: {
     setToken: (state, token) => {
@@ -23,6 +25,9 @@ export default {
     },
     setSearchWord: (state, searchWord) => {
       state.searchWord = searchWord;
+    },
+    setIsneedCommitPlayHistory: (state, isneedCommitPlayHistory) => {
+      state.isneedCommitPlayHistory = isneedCommitPlayHistory;
     },
   },
 };

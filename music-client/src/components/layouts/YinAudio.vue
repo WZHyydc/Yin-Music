@@ -69,9 +69,9 @@ export default defineComponent({
         divRef.value.muted = false;
         muted.value = false;
       }
-      if(isPlay.value){divRef.value.play();}
-      
-      // proxy.$store.commit("setIsPlay", true);
+      if(isPlay.value){
+        divRef.value.play();
+      }
     }
     // 音乐播放时记录音乐的播放位置
     function timeupdate() {

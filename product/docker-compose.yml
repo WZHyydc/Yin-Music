@@ -1,4 +1,6 @@
 version: '3'
+name: YinMusicProduct
+
 services:
   nginx_client:
     image: nginx:latest
@@ -41,6 +43,8 @@ services:
     environment:
       MYSQL_ROOT_PASSWORD: root
       MYSQL_DATABASE: tp_music
+      # 生产环境禁用 MYSQL_ROOT_HOST: "%"
+      MYSQL_ROOT_HOST: "%"
 # 使用minio
   minio:
       image: minio/minio
