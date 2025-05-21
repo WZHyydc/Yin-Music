@@ -1,0 +1,20 @@
+spring:
+  mail:
+    host: imap.163.com # 网站发送邮件邮箱服务 host
+    port: 465 # 网站发送邮件邮箱服务端口
+    username: wzhyydc@163.com   # 开启那个服务的邮箱
+    password: VJ5k9uJ6YDcjfd9g  # 开启服务的那个认证码
+    properties:
+      mail:
+        smtp:
+          auth: true
+          socketFactory:
+            class: javax.net.ssl.SSLSocketFactory
+          starttls:
+            enable: true
+mail:
+  address: wzhyydc@163.com  # 开启那个服务的邮箱
+
+mybatis-plus:
+  configuration:
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl

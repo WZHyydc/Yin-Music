@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.yin.mapper.UserRecommendationsMapper">
+    
+    <resultMap id="BaseResultMap" type="com.example.yin.model.domain.UserRecommendations">
+        <id column="user_id" property="userId" />
+        <result column="recommend_time" property="recommendTime" />
+        <result column="model_version" property="modelVersion" />
+        <result column="song_ids" property="songIds" />
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        user_id, recommend_time, model_version, song_ids
+    </sql>
+
+    <select id="getLatestRecommendations" resultMap="BaseResultMap" parameterType="java.lang.Long">
+        SELECT <include refid="Base_Column_List" />
+        FROM user_recommendations
+        WHERE user_id = #{userId}
+        ORDER BY recommend_time DESC
+        LIMIT 1
+    </select>
+
+</mapper> 
