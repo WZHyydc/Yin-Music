@@ -1,6 +1,7 @@
 import os
 import math
 import logging
+import copy
 
 import torch
 import torch.nn as nn
@@ -314,3 +315,23 @@ class SASRec(nn.Module):
         scores = self.output_layer(sequence_representation)  # [batch_size, num_items]
         
         return scores
+
+def ablation_study(model, val_loader, device):
+    # 完整模型
+    full_metrics = evaluate_model(model, val_loader, device)
+    
+    # 移除音频特征
+    model_no_audio = copy.deepcopy(model)
+    model_no_audio.audio_projection.weight.data.zero_()
+    no_audio_metrics = evaluate_model(model_no_audio, val_loader, device)
+    
+    # 移除位置编码
+    model_no_pos = copy.deepcopy(model)
+    model_no_pos.position_embedding.weight.data.zero_()
+    no_pos_metrics = evaluate_model(model_no_pos, val_loader, device)
+    
+    return {
+        'full_model': full_metrics,
+        'no_audio': no_audio_metrics,
+        'no_position': no_pos_metrics
+    }
