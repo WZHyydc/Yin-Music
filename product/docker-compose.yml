@@ -27,7 +27,9 @@ services:
       - web
 
   web:
-    build: .
+    build: 
+      context: .
+      dockerfile: dockerfile.server
     container_name: YinMusicWebServer
     ports:
       - "8888:8888"
@@ -35,6 +37,7 @@ services:
       - db
       - minio
       - redis
+
   db:
     image: mysql:8.0
     container_name: YinMysql
@@ -45,20 +48,19 @@ services:
       MYSQL_DATABASE: tp_music
       # 生产环境禁用 MYSQL_ROOT_HOST: "%"
       MYSQL_ROOT_HOST: "%"
-# 使用minio
+
   minio:
-      image: minio/minio
-      container_name: YinMinio
-      ports:
-        - "9000:9000"
-        - "40753:40753"
-      environment:
-        MINIO_ROOT_USER: root
-        MINIO_ROOT_PASSWORD: 123456789
-      volumes:
+    image: minio/minio
+    container_name: YinMinio
+    ports:
+      - "9000:9000"
+      - "40753:40753"
+    environment:
+      MINIO_ROOT_USER: root
+      MINIO_ROOT_PASSWORD: 123456789
+    volumes:
       - ./minio/data:/data
-      command: server /data --console-address ":40753"
-# 使用redis7.0
+    command: server /data --console-address ":40753"
 
   redis:
     image: redis:7.0
@@ -71,10 +73,10 @@ services:
     command: redis-server /etc/redis/redis.conf --appendonly yes
 
   recommend:
-    build: .
+    build:
+      context: ../music-recommend-service
+      dockerfile: ../product/dockerfile.recommend
     container_name: YinRecommend
-    ports:
-      - "8082:8082"
     depends_on:
       - db
       - minio
