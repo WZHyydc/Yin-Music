@@ -69,3 +69,13 @@ services:
       - ./redis/conf/redis.conf:/etc/redis/redis.conf
       - ./redis/data:/data
     command: redis-server /etc/redis/redis.conf --appendonly yes
+
+  recommend:
+    build: .
+    container_name: YinRecommend
+    ports:
+      - "8082:8082"
+    depends_on:
+      - db
+      - minio
+      - redis

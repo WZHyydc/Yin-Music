@@ -16,7 +16,8 @@ for dir_path in [DATA_DIR, AUDIO_FILES_DIR, AUDIO_EMBEDDINGS_DIR, MODEL_OUTPUT_D
 
 # MinIO配置
 MINIO_CONFIG = {
-    'endpoint': os.getenv('MINIO_ENDPOINT', 'localhost:9000'),
+    # 'endpoint': os.getenv('MINIO_ENDPOINT', 'localhost:9000'),
+    'endpoint': 'http://YinMinio:9000',
     'access_key': os.getenv('MINIO_ACCESS_KEY', 'root'),
     'secret_key': os.getenv('MINIO_SECRET_KEY', '123456789'),
     'secure': os.getenv('MINIO_SECURE', 'false').lower() == 'true',
@@ -25,7 +26,8 @@ MINIO_CONFIG = {
 
 # 数据库配置
 DB_CONFIG = {
-    'host': os.getenv('DB_HOST', 'localhost'),
+    # 'host': os.getenv('DB_HOST', 'localhost'),
+    'host': os.getenv('DB_HOST', 'YinMysql'),
     'port': int(os.getenv('DB_PORT', 3306)),
     'user': os.getenv('DB_USER', 'root'),
     'password': os.getenv('DB_PASSWORD', 'root'),
