@@ -8,5 +8,7 @@ COPY static/* /
 # 暴露端口8888 3306 6379 9000
 EXPOSE 8888
 # 运行命令
-# ENTRYPOINT ["java", "-jar", "/yin-0.0.1-SNAPSHOT.jar", "--spring.profiles.active=prod"]
-ENTRYPOINT ["java", "-jar", "/yin-0.0.1-SNAPSHOT-Add-Recommend.jar", "--spring.profiles.active=prod"]
+ENTRYPOINT ["java", "-jar", "/yin-0.0.1-SNAPSHOT.jar", "--spring.profiles.active=prod"]
+
+
+
