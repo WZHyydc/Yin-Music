@@ -297,7 +297,6 @@ class SASRec(nn.Module):
         
         # 合并嵌入
         embeddings = item_embeddings + position_embeddings + audio_features
-        
         # 创建注意力掩码
         attention_mask = (input_ids != 0).unsqueeze(1).unsqueeze(2)  # [batch_size, 1, 1, seq_length]
         attention_mask = attention_mask.squeeze(1)  # [batch_size, 1, seq_length]

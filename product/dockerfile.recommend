@@ -14,6 +14,7 @@ RUN apt-get update && apt-get install -y \
 
 # 复制项目文件，需要配合docker-compose.yml使用，不可以单独使用，
 # 因为在docker-compose.yml中，需要将context设置为../music-recommend-service
+# 记得修改config.py中的数据库连接信息
 COPY recommendation_service /app/
 
 # 安装Python依赖
