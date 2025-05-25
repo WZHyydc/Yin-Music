@@ -7,6 +7,7 @@ import com.example.yin.mapper.AdminMapper;
 import com.example.yin.model.domain.Admin;
 import com.example.yin.model.request.AdminRequest;
 import com.example.yin.service.AdminService;
+import com.example.yin.utils.PasswordEncoder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -18,12 +19,16 @@ public class AdminServiceImpl extends ServiceImpl<AdminMapper, Admin> implements
     @Autowired
     private AdminMapper adminMapper;
 
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
     @Override
     public R verityPasswd(AdminRequest adminRequest, HttpSession session) {
         QueryWrapper<Admin> queryWrapper = new QueryWrapper<>();
-        queryWrapper.eq("name",adminRequest.getUsername());
-        queryWrapper.eq("password",adminRequest.getPassword());
-        if (adminMapper.selectCount(queryWrapper) > 0) {
+        queryWrapper.eq("name", adminRequest.getUsername());
+        Admin admin = adminMapper.selectOne(queryWrapper);
+        
+        if (admin != null && passwordEncoder.matches(adminRequest.getPassword(), admin.getPassword())) {
             session.setAttribute("name", adminRequest.getUsername());
             return R.success("登录成功");
         } else {
