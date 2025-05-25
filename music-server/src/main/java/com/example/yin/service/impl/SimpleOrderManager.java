@@ -54,7 +54,17 @@ public class SimpleOrderManager implements OrderManager {
                 mimeMessage.setRecipient(Message.RecipientType.TO,
                         new InternetAddress(reciveAddress));
                 mimeMessage.setFrom(new InternetAddress(sendAddress));
-                mimeMessage.setText("Dear you code is " + code);
+                mimeMessage.setSubject("密码重置验证码");
+                
+                String content = String.format(
+                    "尊敬的用户：\n\n" +
+                    "您正在重置密码，验证码为：%s\n\n" +
+                    "验证码有效期为5分钟，请尽快完成密码重置。\n" +
+                    "如果这不是您的操作，请忽略此邮件。\n\n" +
+                    "此致\n" +
+                    "音乐网站团队负责人魏子皓", code);
+                
+                mimeMessage.setText(content);
             }
         };
         this.mailSender.send(preparator);

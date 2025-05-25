@@ -65,19 +65,23 @@ public class ConsumerController {
     @PostMapping("/user/resetPassword")
     public R resetPassword(@RequestBody ResetPasswordRequest passwordRequest){
         Consumer user = consumerService.findByEmail(passwordRequest.getEmail());
-        String code = stringRedisTemplate.opsForValue().get("code");
+        String codeKey = "verification_code:" + passwordRequest.getEmail();
+        String code = stringRedisTemplate.opsForValue().get(codeKey);
+        
         if (user==null){
             return R.fatal("用户不存在");
-        }else if (!code.equals(passwordRequest.getCode())){
-            return R.fatal("验证码不存在或失效");
+        }else if (code == null || !code.equals(passwordRequest.getCode())){
+            return R.fatal("验证码不存在或已失效");
         }
+        
         ConsumerRequest consumerRequest=new ConsumerRequest();
         BeanUtils.copyProperties(user, consumerRequest);
-        System.out.println(user);
-        System.out.println(consumerRequest);
         consumerRequest.setPassword(passwordRequest.getPassword());
         consumerServiceimpl.updatePassword01(consumerRequest);
-
+        
+        // 重置密码成功后删除验证码
+        stringRedisTemplate.delete(codeKey);
+        
         return R.success("密码修改成功");
     }
 
@@ -87,14 +91,27 @@ public class ConsumerController {
     @GetMapping("/user/sendVerificationCode")
     public R sendCode(@RequestParam String email){
         Consumer user = consumerService.findByEmail(email);
-        System.out.println(user);
         if (user==null){
             return R.fatal("用户不存在");
         }
+        
+        // 检查发送频率限制
+        String rateLimitKey = "email_rate_limit:" + email;
+        String lastSendTime = stringRedisTemplate.opsForValue().get(rateLimitKey);
+        if (lastSendTime != null) {
+            return R.fatal("请等待1分钟后再试");
+        }
+        
         String code = RandomUtils.code();
-        simpleOrderManager.sendCode(code,email);
-        //保存在redis中
-        stringRedisTemplate.opsForValue().set("code",code,5, TimeUnit.MINUTES);
+        simpleOrderManager.sendCode(code, email);
+        
+        // 保存验证码，使用邮箱作为key的一部分
+        String codeKey = "verification_code:" + email;
+        stringRedisTemplate.opsForValue().set(codeKey, code, 5, TimeUnit.MINUTES);
+        
+        // 设置发送频率限制，1分钟内不能重复发送
+        stringRedisTemplate.opsForValue().set(rateLimitKey, String.valueOf(System.currentTimeMillis()), 1, TimeUnit.MINUTES);
+        
         return R.success("发送成功");
     }
 
